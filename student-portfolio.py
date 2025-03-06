@@ -16,27 +16,31 @@ OWNER_EMAIL = "mugishalivin@gmail.com"
 LINKEDIN_PROFILE = "https://www.linkedin.com/in/jean-livin-hakizimana-mugisha-bb357120b"  
 
 # Authentication function  
-def authenticate():  
-    username = st.text_input("Enter Username")  
-    password = st.text_input("Enter Password", type="password")  
-    if username == USERNAME and password == PASSWORD:  
-        return True  
-    else:  
-        return False  
+def authenticate(username, password):  
+    return username == USERNAME and password == PASSWORD  
 
 # Home Section  
 if page == "Home":  
     st.title("🎓 Student Portfolio")  
 
-    # Profile picture upload (Only authenticated user can update)  
-    if authenticate():  
-        uploaded_image = st.file_uploader("Upload profile picture", type=["jpg", "png"])  
-        if uploaded_image:  
-            st.image(uploaded_image, width=150, caption="Profile Pic")  
-        else:  
-            st.image("coach.jpg", width=150, caption="Default")  
-    else:  
-        st.image("coach.jpg", width=150, caption="Profile Pic (Owner Only)")  
+    # Display Default Profile Picture  
+    st.image("coach.jpg", width=150, caption="Profile Pic")  
+
+    # Change Profile Picture Button  
+    if st.button("Change Profile Picture"):  
+        with st.form("auth_form"):  
+            username = st.text_input("Enter Username")  
+            password = st.text_input("Enter Password", type="password")  
+            submit = st.form_submit_button("Login")  
+
+            if submit and authenticate(username, password):  
+                uploaded_image = st.file_uploader("Upload profile picture", type=["jpg", "png"])  
+                if uploaded_image:  
+                    st.image(uploaded_image, width=150, caption="Updated Profile Pic")  
+                else:  
+                    st.warning("Please upload an image.")  
+            elif submit:  
+                st.error("Invalid Credentials!")  
 
     # Student Details  
     st.write(f"👤 **Name:** {OWNER_NAME}")  
@@ -51,7 +55,7 @@ if page == "Home":
     st.write(f"📚 {field_of_study}")  
     st.write(f"🌐 {university}")  
 
-    # Download resume  
+    # Download Resume  
     with open("JEAN LIVIN CV.docx", "rb") as file:  
         resume_bytes = file.read()  
     st.download_button(label="📄 Download Resume",  
@@ -119,14 +123,19 @@ elif page == "Skills":
 elif page == "Customized Profile":  
     st.title("🛠️ Customize Your Profile")  
 
-    if authenticate():  
-        new_name = st.text_input("Edit Name", OWNER_NAME)  
-        new_bio = st.text_area("Edit Bio", "I am a passionate AI student.")  
+    if st.button("Edit Profile"):  
+        with st.form("auth_form_profile"):  
+            username = st.text_input("Enter Username")  
+            password = st.text_input("Enter Password", type="password")  
+            submit = st.form_submit_button("Login")  
 
-        if st.button("Save Changes"):  
-            st.success("Profile Updated Successfully!")  
-    else:  
-        st.warning("You are not authorized to edit this profile.")  
+            if submit and authenticate(username, password):  
+                new_name = st.text_input("Edit Name", OWNER_NAME)  
+                new_bio = st.text_area("Edit Bio", "I am a passionate AI student.")  
+                if st.button("Save Changes"):  
+                    st.success("Profile Updated Successfully!")  
+            elif submit:  
+                st.error("Invalid Credentials!")  
 
 # Contact Section  
 elif page == "Contact":  
